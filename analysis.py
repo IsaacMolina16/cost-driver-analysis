@@ -2,21 +2,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# Show files in directory (debugging)
-print("Files in directory:", os.listdir())
+# =========================
+# CONFIG
+# =========================
+DATA_PATH = 'clean_data.xlsx'
+OUTPUT_PATH = 'outputs'
+
+os.makedirs(OUTPUT_PATH, exist_ok=True)
 
 # =========================
-# Load Data
+# LOAD DATA
 # =========================
-df = pd.read_excel('clean_data.xlsx')
+df = pd.read_excel(DATA_PATH)
+
+# Sort for Pareto
+df = df.sort_values(by='Cost', ascending=False).reset_index(drop=True)
 
 # =========================
-# SORT FOR PARETO
+# FEATURE ENGINEERING
 # =========================
-df = df.sort_values(by='Cost', ascending=False)
-
-# Calculate cumulative percentage
 df['Cumulative_Percentage'] = df['Cost'].cumsum() / df['Cost'].sum() * 100
+df['ROI'] = df['Avoided'] / df['Cost']
 
 # =========================
 # PARETO CHART
@@ -34,12 +40,11 @@ ax2.set_ylabel("Cumulative %")
 
 plt.title("Pareto Analysis - Repair Cost Drivers")
 plt.tight_layout()
-
-plt.savefig("pareto_chart.png")
-plt.show()
+plt.savefig(f"{OUTPUT_PATH}/pareto_chart.png")
+plt.close()
 
 # =========================
-# SCATTER PLOT (QUADRANT ANALYSIS)
+# SCATTER PLOT
 # =========================
 plt.figure()
 
@@ -51,24 +56,31 @@ mean_cost = df['Cost'].mean()
 plt.axvline(mean_failed, linestyle='--')
 plt.axhline(mean_cost, linestyle='--')
 
-# Annotate each point with component name
+# Annotate top 10 only
 for i, component in enumerate(df['Component']):
-    plt.annotate(component, (df['Failed'].iloc[i], df['Cost'].iloc[i]))
+    if i < 10:
+        plt.annotate(component, (df['Failed'].iloc[i], df['Cost'].iloc[i]))
 
 plt.xlabel("Number of Failures")
 plt.ylabel("Cost (USD)")
 plt.title("Failure Frequency vs Cost Impact")
 
 plt.tight_layout()
-plt.savefig("scatter_plot.png")
-plt.show()
+plt.savefig(f"{OUTPUT_PATH}/scatter_plot.png")
+plt.close()
 
 # =========================
-# ROI ANALYSIS
+# INSIGHTS OUTPUT
 # =========================
-df['ROI'] = df['Avoided'] / df['Cost']
+top_cost = df.head(3)
+top_roi = df.sort_values(by='ROI', ascending=False).head(3)
 
-roi_sorted = df[['Component', 'ROI']].sort_values(by='ROI', ascending=False)
+print("\n=== TOP COST DRIVERS ===")
+print(top_cost[['Component', 'Cost']])
 
-print("\nTop ROI Components:\n")
-print(roi_sorted)
+print("\n=== TOP ROI COMPONENTS ===")
+print(top_roi[['Component', 'ROI']])
+
+print("\n=== SUMMARY ===")
+print(f"Total Cost: ${df['Cost'].sum():,.2f}")
+print(f"Average Cost: ${df['Cost'].mean():,.2f}")
