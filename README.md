@@ -4,11 +4,15 @@
 This project analyzes maintenance data from semiconductor test equipment to identify key cost drivers and optimize maintenance decision-making using data analysis techniques.
 
 -Objective-
-The goal of this project is to:
+The goal is to identify cost inefficiencies in maintenance operations and provide data-driven recommendations to reduce downtime and operational expenses.
 
-*Identify the components generating the highest repair costs
-*Analyze the relationship between failure frequency and cost impact
-*Improve prioritization of maintenance strategies using data
+-Business Impact-
+Potential cost savings equivalent to a mid-level engineering salary annually.
+
+-Decision Impact-
+*Enabled prioritization of high-cost, low-frequency failures
+*Supported shift from reactive to data-driven maintenance strategy
+*Improved resource allocation efficiency
 
 -Dataset-
 The dataset includes:
